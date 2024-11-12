@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+    xmlns:converters="clr-namespace:CrystalApp.Converters"
+    Shell.NavBarIsVisible="False"
+    x:Class="CrystalApp.MainPage"
+    BackgroundColor="#1E1E36">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BooleanInverseConverter x:Key="BooleanInverseConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid
+        RowSpacing="15"
+        Padding="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Frame 
+            Grid.Row="0"
+            Padding="15"
+            BorderColor="#DDDDDD"
+            BackgroundColor="Transparent"
+            VerticalOptions="FillAndExpand">
+            <VerticalStackLayout
+                Spacing="0">
+                <Grid>
+                    <Label 
+                        Text="Connectivity"
+                        FontSize="Medium"
+                        FontAttributes="Bold"/> 
+                    <Label 
+                        Text="{Binding ConnectionStatus}"
+                        FontSize="Small"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center" />
+                </Grid>
+
+                <Grid
+                    HeightRequest="1"
+                    BackgroundColor="#DDDDDD"
+                    Margin="0,10,0,0"/>
+
+                <VerticalStackLayout
+                    Spacing="-10">
+                    <StackLayout Orientation="Horizontal">
+                        <Label 
+                            Text="IP Address: "
+                            VerticalOptions="Center"/>
+                        <Entry 
+                            Text="{Binding IpAddress}"
+                            HorizontalOptions="Start"
+                            WidthRequest="170"
+                            IsEnabled="{Binding IsConnected, Converter={StaticResource BooleanInverseConverter}}" />
+                    </StackLayout>
+
+                    <StackLayout Orientation="Horizontal">
+                        <Label 
+                            Text="Port number: "
+                            VerticalOptions="Center"/>
+                        <Entry 
+                            Text="{Binding PortNumber}"
+                            HorizontalOptions="Start"
+                            WidthRequest="120"
+                            Keyboard="Numeric"
+                            IsEnabled="{Binding IsConnected, Converter={StaticResource BooleanInverseConverter}}" />
+                    </StackLayout>
+                </VerticalStackLayout>
+
+                <Button
+                    Command="{Binding ToggleConnectionCmd}"
+                    HorizontalOptions="Fill"
+                    Margin="0,10,0,0">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsConnected}" Value="true">
+                            <Setter Property="Text" Value="Close Connection" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsConnected}" Value="false">
+                            <Setter Property="Text" Value="Open Connection" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+            </VerticalStackLayout>
+        </Frame>
+
+        <Frame 
+            Grid.Row="1"
+            Padding="15"
+            BorderColor="#DDDDDD"
+            BackgroundColor="Transparent"
+            IsEnabled="{Binding IsConnected}">
+            <Grid
+                RowSpacing="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid
+                    Grid.Row="0">
+                    <Label 
+                        Text="Readings"
+                        FontSize="Medium"
+                        FontAttributes="Bold"/>
+                    <StackLayout 
+                        Spacing="10"
+                        Orientation="Horizontal"
+                        HorizontalOptions="End">
+                        <Label 
+                            Text="{Binding ManualControlOutput, StringFormat='{}CO: {0:F1}'}"
+                            FontSize="Small"
+                            FontAttributes="Bold"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center" />
+                        <Grid
+                            WidthRequest="1"
+                            BackgroundColor="#DDDDDD" />
+                        <Label 
+                            Text="{Binding TemperatureSetPoint, StringFormat='{}SP: {0:F1}°C'}"
+                            FontSize="Small"
+                            FontAttributes="Bold"
+                            HorizontalOptions="End" 
+                            VerticalOptions="Center" />
+                        <Grid
+                            WidthRequest="1"
+                            BackgroundColor="#DDDDDD" />
+                        <Label 
+                            Text="{Binding TemperatureValue, StringFormat='{}T: {0:F1}°C'}"
+                            FontSize="Small"
+                            FontAttributes="Bold"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center" />
+                    </StackLayout>
+
+                </Grid>
+
+                <Grid
+                    Grid.Row="1"
+                    HeightRequest="1"
+                    BackgroundColor="#DDDDDD"
+                    Margin="0,10,0,0"/>
+
+                <charts:ChartView
+                    Grid.Row="2"
+                    Chart="{Binding SensorChart}"
+                    Margin="0,15,0,0"/>
+            </Grid>
+        </Frame>
+
+        <Frame 
+            Grid.Row="2"
+            Padding="15"
+            BorderColor="#DDDDDD"
+            BackgroundColor="Transparent"
+            IsEnabled="{Binding IsConnected}">
+            <VerticalStackLayout
+                Spacing="0">
+                <Grid>
+                    <Label 
+                        Text="Farm Settings"
+                        FontSize="Medium"
+                        FontAttributes="Bold"/>
+                    <Label 
+                        Text="{Binding SettingsStatus}"
+                        FontSize="Small"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center" /> 
+                </Grid>
+
+                <Grid
+                    HeightRequest="1"
+                    BackgroundColor="#DDDDDD"
+                    Margin="0,10,0,0"/>
+
+                <VerticalStackLayout
+                    Spacing="-10">
+                    <StackLayout Orientation="Horizontal">
+                        <Label 
+                            Text="Operation Mode: "
+                            VerticalOptions="Center" />
+                        <Label 
+                            Text="Manual"
+                            FontSize="Micro"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center"
+                            Margin="20,0,0,0" />
+                        <Switch 
+                            IsToggled="{Binding IsAutoMode}"
+                            VerticalOptions="Center"/>
+                        <Label 
+                            Text="Auto"
+                            FontSize="Micro"
+                            VerticalOptions="Center"
+                            Margin="2,0,0,0"/>
+                    </StackLayout>
+
+                    <StackLayout Orientation="Horizontal">
+                        <Label 
+                            Text="Temperature Set Point: "
+                            VerticalOptions="Center"/>
+                        <Entry 
+                            Text="{Binding TemperatureSetPoint}"
+                            HorizontalOptions="Start"
+                            WidthRequest="80"
+                            Keyboard="Numeric" />
+                    </StackLayout>
+
+                    <StackLayout Orientation="Horizontal">
+                        <Label 
+                            Text="Manual Control Output: "
+                            VerticalOptions="Center"/>
+                        <Entry 
+                            Text="{Binding ManualControlOutput}"
+                            HorizontalOptions="Start"
+                            WidthRequest="80"
+                            Keyboard="Numeric"
+                            IsEnabled="{Binding IsAutoMode, Converter={StaticResource BooleanInverseConverter}}"/>
+                    </StackLayout>
+                </VerticalStackLayout>
+
+                <Button
+                    Command="{Binding SendSettingsCmd}"
+                    Text="Send Settings" 
+                    HorizontalOptions="Fill"
+                    Margin="0,10,0,0" />
+            </VerticalStackLayout>
+        </Frame>
+    </Grid>
+</ContentPage>

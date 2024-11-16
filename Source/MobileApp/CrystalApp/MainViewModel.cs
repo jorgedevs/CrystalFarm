@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Windows.Input;
 
 namespace CrystalApp;
@@ -13,6 +14,7 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private TcpClient client;
     private NetworkStream stream;
+    private bool getInitialSettings;
 
     // Connectivity
 
@@ -46,7 +48,14 @@ public class MainViewModel : INotifyPropertyChanged
 
     public ICommand ToggleConnectionCmd { get; set; }
 
-    // Graphs
+    // Status
+
+    private string farmStatus;
+    public string FarmStatus
+    {
+        get => farmStatus;
+        set { farmStatus = value; OnPropertyChanged(); }
+    }
 
     private ObservableCollection<ChartEntry> entries;
 
@@ -121,13 +130,13 @@ public class MainViewModel : INotifyPropertyChanged
         Preferences.Set("OperationMode", IsAutoMode);
         Preferences.Set("TemperatureSetPoint", TemperatureSetPoint);
 
-        //string command = "" +
-        //    (IsAutoMode ? "1.0," : "0.0,") +
-        //    $"{TemperatureSetPoint}," +
-        //    $"{ManualControlOutput}";
-        //byte[] commandBytes = Encoding.ASCII.GetBytes(command);
-        //await stream.WriteAsync(commandBytes, 0, commandBytes.Length);
-        //Console.WriteLine($"Sent: {command}");
+        string command = "" +
+            (IsAutoMode ? "1.0," : "0.0,") +
+            $"{TemperatureSetPoint}," +
+            $"{ManualControlOutput}";
+        byte[] commandBytes = Encoding.ASCII.GetBytes(command);
+        await stream.WriteAsync(commandBytes, 0, commandBytes.Length);
+        Console.WriteLine($"Sent: {command}");
 
         SettingsStatus = "Settings Sent!";
         await Task.Delay(3000);
@@ -143,9 +152,15 @@ public class MainViewModel : INotifyPropertyChanged
                 Preferences.Set("IPAddress", IpAddress);
                 Preferences.Set("PortNumber", PortNumber);
 
-                //await client.ConnectAsync(IpAddress, PortNumber);
-                //stream = client.GetStream();
+                if (client == null)
+                {
+                    client = new TcpClient();
+                }
 
+                await client.ConnectAsync(IpAddress, PortNumber);
+                stream = client.GetStream();
+
+                getInitialSettings = true;
                 IsConnected = true;
                 ConnectionStatus = "Connected!";
                 await Task.Delay(3000);
@@ -153,7 +168,10 @@ public class MainViewModel : INotifyPropertyChanged
             }
             else
             {
-                //stream.Close();
+                stream.Close();
+                client.Dispose();
+                client = null;
+
                 entries.Clear();
 
                 IsConnected = false;
@@ -177,19 +195,32 @@ public class MainViewModel : INotifyPropertyChanged
         {
             if (IsConnected)
             {
-                //byte[] buffer = new byte[1024];
-                //int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                //string response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                //Console.WriteLine($"Received: {response}");
+                byte[] buffer = new byte[1024];
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                string response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                Debug.Print($"Received: {response}");
 
-                //var values = response.Split(",");
-                //IsAutoMode = float.Parse(values[0]) == 1;
-                //TemperatureSetPoint = float.Parse(values[1]);
-                //ManualControlOutput = float.Parse(values[2]);
-                //TemperatureValue = float.Parse(values[3]);
-                //UpdateGraph(TemperatureValue);
+                var values = response.Split(",");
+                TemperatureValue = float.Parse(values[0]);
+                var isAutoMode = float.Parse(values[1]) == 1;
+                var temperatureSetPoint = float.Parse(values[2]);
+                var manualControlOutput = float.Parse(values[3]);
 
-                UpdateGraph(random.Next(20, 40));
+                if (getInitialSettings)
+                {
+                    getInitialSettings = false;
+                    IsAutoMode = isAutoMode;
+                    ManualControlOutput = manualControlOutput;
+                    TemperatureSetPoint = temperatureSetPoint;
+                }
+
+                FarmStatus = $"" +
+                    $"CO: {manualControlOutput:F1} | " +
+                    $"SP: {temperatureSetPoint:F1} °C | " +
+                    $"CT: {TemperatureValue:F1} °C";
+
+                UpdateGraph(TemperatureValue);
+                //UpdateGraph(random.Next(20, 40));
             }
 
             await Task.Delay(TimeSpan.FromSeconds(1));

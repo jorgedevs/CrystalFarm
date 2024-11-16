@@ -108,38 +108,14 @@
                     Grid.Row="0">
                     <Label 
                         Text="Readings"
-                        FontSize="Medium"
+                        FontSize="Small"
                         FontAttributes="Bold"/>
-                    <StackLayout 
-                        Spacing="10"
-                        Orientation="Horizontal"
-                        HorizontalOptions="End">
-                        <Label 
-                            Text="{Binding ManualControlOutput, StringFormat='{}CO: {0:F1}'}"
-                            FontSize="Small"
-                            FontAttributes="Bold"
-                            HorizontalOptions="End"
-                            VerticalOptions="Center" />
-                        <Grid
-                            WidthRequest="1"
-                            BackgroundColor="#DDDDDD" />
-                        <Label 
-                            Text="{Binding TemperatureSetPoint, StringFormat='{}SP: {0:F1}°C'}"
-                            FontSize="Small"
-                            FontAttributes="Bold"
-                            HorizontalOptions="End" 
-                            VerticalOptions="Center" />
-                        <Grid
-                            WidthRequest="1"
-                            BackgroundColor="#DDDDDD" />
-                        <Label 
-                            Text="{Binding TemperatureValue, StringFormat='{}T: {0:F1}°C'}"
-                            FontSize="Small"
-                            FontAttributes="Bold"
-                            HorizontalOptions="End"
-                            VerticalOptions="Center" />
-                    </StackLayout>
-
+                    <Label 
+                        Text="{Binding FarmStatus}"
+                        FontSize="11"
+                        FontAttributes="Bold"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center" />
                 </Grid>
 
                 <Grid
@@ -188,7 +164,7 @@
                             VerticalOptions="Center" />
                         <Label 
                             Text="Manual"
-                            FontSize="Micro"
+                            FontSize="12"
                             HorizontalOptions="End"
                             VerticalOptions="Center"
                             Margin="20,0,0,0" />
@@ -197,7 +173,7 @@
                             VerticalOptions="Center"/>
                         <Label 
                             Text="Auto"
-                            FontSize="Micro"
+                            FontSize="12"
                             VerticalOptions="Center"
                             Margin="2,0,0,0"/>
                     </StackLayout>

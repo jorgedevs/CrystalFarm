@@ -124,7 +124,7 @@
                     BackgroundColor="#DDDDDD"
                     Margin="0,10,0,0"/>
 
-                <charts:ChartView
+                <charts:ChartView 
                     Grid.Row="2"
                     Chart="{Binding SensorChart}"
                     Margin="0,15,0,0"/>
@@ -158,6 +158,25 @@
 
                 <VerticalStackLayout
                     Spacing="-10">
+                    <StackLayout Orientation="Horizontal">
+                        <Label 
+                            Text="Start Crystalization: "
+                            VerticalOptions="Center" />
+                        <Label 
+                            Text="Off"
+                            FontSize="12"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center"
+                            Margin="20,0,0,0" />
+                        <Switch 
+                            IsToggled="{Binding StartCrystalization}"
+                            VerticalOptions="Center"/>
+                        <Label 
+                            Text="On"
+                            FontSize="12"
+                            VerticalOptions="Center"
+                            Margin="2,0,0,0"/>
+                    </StackLayout>
                     <StackLayout Orientation="Horizontal">
                         <Label 
                             Text="Operation Mode: "

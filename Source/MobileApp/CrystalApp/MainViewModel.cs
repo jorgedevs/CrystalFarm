@@ -68,6 +68,13 @@ public class MainViewModel : INotifyPropertyChanged
 
     // Settings
 
+    private bool startCrystalization;
+    public bool StartCrystalization
+    {
+        get => startCrystalization;
+        set { startCrystalization = value; OnPropertyChanged(); }
+    }
+
     private bool isAutoMode;
     public bool IsAutoMode
     {
@@ -133,7 +140,8 @@ public class MainViewModel : INotifyPropertyChanged
         string command = "" +
             (IsAutoMode ? "1.0," : "0.0,") +
             $"{TemperatureSetPoint}," +
-            $"{ManualControlOutput}";
+            $"{ManualControlOutput}," +
+            (StartCrystalization ? "1.0" : "0.0");
         byte[] commandBytes = Encoding.ASCII.GetBytes(command);
         await stream.WriteAsync(commandBytes, 0, commandBytes.Length);
         Console.WriteLine($"Sent: {command}");
@@ -205,11 +213,13 @@ public class MainViewModel : INotifyPropertyChanged
                 var isAutoMode = float.Parse(values[1]) == 1;
                 var temperatureSetPoint = float.Parse(values[2]);
                 var manualControlOutput = float.Parse(values[3]);
+                var startCrystalization = float.Parse(values[4]) == 1;
 
                 if (getInitialSettings)
                 {
                     getInitialSettings = false;
                     IsAutoMode = isAutoMode;
+                    StartCrystalization = startCrystalization;
                     ManualControlOutput = manualControlOutput;
                     TemperatureSetPoint = temperatureSetPoint;
                 }
@@ -219,7 +229,7 @@ public class MainViewModel : INotifyPropertyChanged
                     $"SP: {temperatureSetPoint:F1} °C | " +
                     $"CT: {TemperatureValue:F1} °C";
 
-                UpdateGraph(TemperatureValue);
+                UpdateGraph(TemperatureValue - temperatureSetPoint);
                 //UpdateGraph(random.Next(20, 40));
             }
 
@@ -238,14 +248,15 @@ public class MainViewModel : INotifyPropertyChanged
 
         entries.Add(new ChartEntry(temperatureValue)
         {
-            Color = temperatureValue switch
-            {
-                >= 30 => SKColor.Parse("#FC0103"),
-                >= 25 and < 30 => SKColor.Parse("#B10130"),
-                >= 20 and < 25 => SKColor.Parse("#81014E"),
-                >= 15 and < 20 => SKColor.Parse("#4F016C"),
-                < 15 => SKColor.Parse("#090197"),
-            }
+            //Color = temperatureValue switch
+            //{
+            //    >= 30 => SKColor.Parse("#FC0103"),
+            //    >= 25 and < 30 => SKColor.Parse("#B10130"),
+            //    >= 20 and < 25 => SKColor.Parse("#81014E"),
+            //    >= 15 and < 20 => SKColor.Parse("#4F016C"),
+            //    < 15 => SKColor.Parse("#090197"),
+            //}
+            Color = SKColor.Parse("#EF7D3B")
         });
 
         if (entries.Count > 0)
@@ -279,6 +290,8 @@ public class MainViewModel : INotifyPropertyChanged
                 ShowYAxisLines = true,
                 ShowYAxisText = true,
                 SerieLabelTextSize = 20,
+                MinValue = -5,
+                MaxValue = 5,
                 IsAnimated = false
             };
         }
